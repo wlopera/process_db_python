@@ -5,6 +5,7 @@ from flask_cors import CORS
 import traceback
 
 from services.mysql_service import MySqlService
+from flask import Flask, jsonify, make_response
 
 try:
 
@@ -30,6 +31,7 @@ try:
 
         print("Response: ", response)
 
+        #return make_response(jsonify({'error': 'Error interno del servidor'}), 500)
         return response
 
     CORS(app)
