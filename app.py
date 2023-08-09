@@ -5,33 +5,56 @@ from flask_cors import CORS
 import traceback
 
 from services.mysql_service import MySqlService
-from flask import Flask, jsonify, make_response
 
 try:
 
     app = Flask(__name__)
     app.secret_key = "wlopera_mysql_db"
 
-    # --------------------------- Funciones de BD
-
     # Crea una instancia de la clase MySqlService
-    service = MySqlService(app)
+    mysql_service = MySqlService()
+    # oracle_service = None
 
     @app.route('/api/mysql/getTableByQuery', methods=['POST'])
-    def get_table_by_query():
+    def get_mysql_table_by_query():
+        global mysql_service
+
         param = request.get_json()
-        host = param['host']
-        user = param['user']
-        password = param['password']
-        database = param['database']
+
         query = param['query']
 
-        response = service.query_table(
-            app, host, user, password, database, query)
-
+        db_config = {
+            'host': param['host'],
+            'user': param['user'],
+            'password': param['password'],
+            'database': param['database']
+        }
+        response = mysql_service.query_table(db_config, query)
         print("Response: ", response)
 
-        #return make_response(jsonify({'error': 'Error interno del servidor'}), 500)
+        # return make_response(jsonify({'error': 'Error interno del servidor'}), 500)
+        return response
+    
+    @app.route('/api/mysql/callSP', methods=['POST'])
+    def call_mysql_sp():
+        global mysql_service
+
+        param = request.get_json()
+        
+        db_config = {
+            'host': param['host'],
+            'user': param['user'],
+            'password': param['password'],
+            'database': param['database']
+        }
+        procedure = param['procedure']
+        params = param['params']
+        
+        response = mysql_service.call_stored_procedure(db_config, procedure, params)
+        
+        print("Response: ", response)
+
+        # return make_response(jsonify({'error': 'Error interno del servidor'}), 500)
         return response
 
     CORS(app)

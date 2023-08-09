@@ -10,25 +10,30 @@ class TemplateInterface(ABC):
         Plantilla para realizar operaciones de consulta de SQL y Consumo de Store Procedure
     """
 
-    def __init__(self, mongo_db_connection, COLLECTION_NAME, clientMongoDB):
-        self.mongo_db_connection = mongo_db_connection
-        self.clientMongoDB = clientMongoDB
-        self.collection = mongo_db_connection[COLLECTION_NAME]
-
     @abstractmethod
-    def query_table(app, host, user, password, database, query):
+    def query_table(db_config, query):
         """
             Realizar un query cobre una tabla de base de datos
         Params:
-            app: App principal
-            host: Ip Servidor
-            user: Uusario DB
-            password: Clave DB
-            database: Nombre DB
+            db_config: Parametros de conexion a la base de datos
             query: SQL a consultar
         Author: 
             wlopera
         Return:
             dict: Resultado del query
+        """
+        pass
+
+    @abstractmethod
+    def call_stored_procedure(db_config):
+        """
+            Consumir un Store Procedure de base de datos
+        Params:         
+            db_config: Parametros de conexion a la base de datos
+            query: SQL a consultar
+        Author: 
+            wlopera
+        Return:
+            dict: Resultado del SP
         """
         pass
