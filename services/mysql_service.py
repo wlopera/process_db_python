@@ -53,17 +53,13 @@ class MySqlService(TemplateInterface):
             # Crea un cursor para interactuar con la base de datos
             cursor = connection.cursor(dictionary=True)
 
-            print("params:", params)
             valores_key = [param['value'] for param in params]
-
-            print("valores:", valores_key)
 
             # Solo los valores de los parametros
             args = list(valores_key)
 
             # Llamar al procedimiento almacenado
             result = cursor.callproc(procedure, args)
-            print("Result:", result)
 
             has_out = False
 
@@ -74,21 +70,33 @@ class MySqlService(TemplateInterface):
 
             result_data = None
 
+            response = {}
+
             if has_out:
                 values = list(result.values())
                 print("Values:", values)
                 data = values[len(values)-1]
                 result_data = json.loads(data)
+
+                columns = [{"key": col, "value": col}
+                           for col, value in result_data.items()]
+
+                response = {"columns": columns, "data": [result_data]}
+                print("Response: ", response)
             else:
                 for result in cursor.stored_results():
                     result_data = result.fetchall()
 
-            print("RESULTADO:", result_data)
+
+                keys_list = [list(item.keys()) for item in result_data]
+                columns = [{"key": col, "value": col} for col in keys_list[0]]
+                response = {"columns": columns, "data": result_data}
+                print("Response: ", response)
 
             cursor.close()
             connection.close()
 
-            return ServiceUtils.success({'data': result_data})
+            return ServiceUtils.success(response)
         except Exception as e:
             return ServiceUtils.error(e)
 
